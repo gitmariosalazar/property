@@ -1,8 +1,9 @@
 import { Module } from "@nestjs/common";
+import { PostgresPropertyModule } from "../../modules/properties/infrastructure/modules/postgresql/postgresql.property.controller";
 
 
 @Module({
-  imports: [],
+  imports: [PostgresPropertyModule],
   controllers: [],
   providers: [],
   exports: []
