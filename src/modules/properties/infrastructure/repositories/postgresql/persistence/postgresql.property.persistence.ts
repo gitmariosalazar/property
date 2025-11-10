@@ -221,12 +221,12 @@ export class PostgresqlPropertyPersistence
           valorterreno = COALESCE($7, valorterreno),
           valorconstruccion = COALESCE($8, valorconstruccion),
           valorcomercial = COALESCE($9, valorcomercial),
-          coordenadas = COALESCE($10, coordenadas),
-          referencia = COALESCE($11, referencia),
-          altitud = COALESCE($12, altitud),
-          precision = COALESCE($13, precision),
-          tipopredioid = COALESCE($14, tipopredioid)
-        WHERE clavecatastral = $15
+          -- coordenadas = COALESCE($10, coordenadas),
+          referencia = COALESCE($10, referencia),
+          altitud = COALESCE($11, altitud),
+          precision = COALESCE($12, precision),
+          tipopredioid = COALESCE($13, tipopredioid)
+        WHERE clavecatastral = $14
         RETURNING
           clavecatastral as "propertyCadastralKey",
           clienteid as "propertyClientId",
@@ -255,7 +255,7 @@ export class PostgresqlPropertyPersistence
         property.getPropertyLandValue(),
         property.getPropertyConstructionValue(),
         property.getPropertyCommercialValue(),
-        property.getPropertyCoordinates(),
+        //property.getPropertyCoordinates(),
         property.getPropertyReference(),
         property.getPropertyAltitude(),
         property.getPropertyPrecision(),
