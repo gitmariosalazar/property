@@ -10,12 +10,13 @@ import { PropertyModel } from '../../../../domain/schemas/models/property.model'
 
 @Injectable()
 export class PostgresqlPropertyPersistence
-  implements InterfacePropertyRepository {
-  constructor(private readonly PostgreSqlService: DatabaseServicePostgreSQL) { }
+  implements InterfacePropertyRepository
+{
+  constructor(private readonly PostgreSqlService: DatabaseServicePostgreSQL) {}
 
   async verifyPropertyExists(propertyCadastralKey: string): Promise<boolean> {
     try {
-      const query = `SELECT EXISTS(SELECT 1 FROM predio WHERE clavecatastral = $1) AS "exists"`;
+      const query = `SELECT EXISTS(SELECT 1 FROM predio WHERE clave_catastral = $1) AS "exists"`;
       const params = [propertyCadastralKey];
       const result = await this.PostgreSqlService.query<Exists>(query, params);
       return result[0].exists;
@@ -30,26 +31,26 @@ export class PostgresqlPropertyPersistence
     try {
       const query = `
         SELECT
-            p.predioid as "propertyId",
-            p.clavecatastral as "propertyCadastralKey",
-            p.clienteid as "propertyClientId",
+            p.predio_id as "propertyId",
+            p.clave_catastral as "propertyCadastralKey",
+            p.cliente_id as "propertyClientId",
             p.callejon as "properttyAlleyway",
             p.sector as "propertySector",
             p.direccion as "propertyAddress",
-            p.areaterreno as "propertyLandArea",
-            p.areaconstruccion as "propertyConstrucctionArea",
-            p.valorterreno as "propertyLandValue",
-            p.valorconstruccion as "propertyConstrucctionValue",
-            p.valorcomercial as "propertyComercialValue",
+            p.area_terreno as "propertyLandArea",
+            p.area_construccion as "propertyConstrucctionArea",
+            p.valor_terreno as "propertyLandValue",
+            p.valor_construccion as "propertyConstrucctionValue",
+            p.valor_comercial as "propertyComercialValue",
             p.coordenadas as "propertyCoordinates",
             p.referencia as "propertyReference",
             p.altitud as "propertyAltitude",
             p.precision as "propertyPrecision",
-            p.tipopredioid as "propertyTypeId",
+            p.tipo_predio_id as "propertyTypeId",
             tp.nombre as "propertyTypeName"
         FROM predio p
-        LEFT JOIN tipopredio tp ON tp.tipopredioid = p.tipopredioid
-        WHERE p.clavecatastral = $1;
+        LEFT JOIN tipo_predio tp ON tp.tipo_predio_id = p.tipo_predio_id
+        WHERE p.clave_catastral = $1;
       `;
 
       const params = [propertyCadastralKey];
@@ -78,31 +79,33 @@ export class PostgresqlPropertyPersistence
     }
   }
 
-  async findAllProperties(limit: number, offset: number): Promise<PropertyResponse[]> {
+  async findAllProperties(
+    limit: number,
+    offset: number,
+  ): Promise<PropertyResponse[]> {
     try {
-
       const query = `
         SELECT
-            p.predioid as "propertyId",
-            p.clavecatastral as "propertyCadastralKey",
-            p.clienteid as "propertyClientId",
+            p.predio_id as "propertyId",
+            p.clave_catastral as "propertyCadastralKey",
+            p.cliente_id as "propertyClientId",
             p.callejon as "properttyAlleyway",
             p.sector as "propertySector",
             p.direccion as "propertyAddress",
-            p.areaterreno as "propertyLandArea",
-            p.areaconstruccion as "propertyConstrucctionArea",
-            p.valorterreno as "propertyLandValue",
-            p.valorconstruccion as "propertyConstrucctionValue",
-            p.valorcomercial as "propertyComercialValue",
+            p.area_terreno as "propertyLandArea",
+            p.area_construccion as "propertyConstrucctionArea",
+            p.valor_terreno as "propertyLandValue",
+            p.valor_construccion as "propertyConstrucctionValue",
+            p.valor_comercial as "propertyComercialValue",
             p.coordenadas as "propertyCoordinates",
             p.referencia as "propertyReference",
             p.altitud as "propertyAltitude",
             p.precision as "propertyPrecision",
-            p.tipopredioid as "propertyTypeId",
+            p.tipo_predio_id as "propertyTypeId",
             tp.nombre as "propertyTypeName"
         FROM predio p
-        LEFT JOIN tipopredio tp ON tp.tipopredioid = p.tipopredioid
-        ORDER BY p.predioid
+        LEFT JOIN tipo_predio tp ON tp.tipo_predio_id = p.tipo_predio_id
+        ORDER BY p.predio_id
         LIMIT $1 OFFSET $2;
       `;
 
@@ -119,51 +122,51 @@ export class PostgresqlPropertyPersistence
       );
 
       return response;
-
     } catch (error) {
       throw error;
     }
   }
 
-  async createProperty(property: PropertyModel): Promise<PropertyResponse | null> {
+  async createProperty(
+    property: PropertyModel,
+  ): Promise<PropertyResponse | null> {
     try {
-
       const query = `
         INSERT INTO predio (
-          clavecatastral,
-          clienteid,
+          clave_catastral,
+          cliente_id,
           callejon,
           sector,
           direccion,
-          areaterreno,
-          areaconstruccion,
-          valorterreno,
-          valorconstruccion,
-          valorcomercial,
+          area_terreno,
+          area_construccion,
+          valor_terreno,
+          valor_construccion,
+          valor_comercial,
           coordenadas,
           referencia,
           altitud,
           precision,
-          tipopredioid
+          tipo_predio_id
         ) VALUES (
           $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, 
           $12, $13, $14, $15
         ) RETURNING
-          clavecatastral as "propertyCadastralKey",
-          clienteid as "propertyClientId",
+          clave_catastral as "propertyCadastralKey",
+          cliente_id as "propertyClientId",
           callejon as "properttyAlleyway",
           sector as "propertySector",
           direccion as "propertyAddress",
-          areaterreno as "propertyLandArea",
-          areaconstruccion as "propertyConstrucctionArea",
-          valorterreno as "propertyLandValue",
-          valorconstruccion as "propertyConstrucctionValue",
-          valorcomercial as "propertyComercialValue",
+          area_terreno as "propertyLandArea",
+          area_construccion as "propertyConstrucctionArea",
+          valor_terreno as "propertyLandValue",
+          valor_construccion as "propertyConstrucctionValue",
+          valor_comercial as "propertyComercialValue",
           coordenadas as "propertyCoordinates",
           referencia as "propertyReference",
           altitud as "propertyAltitude",
           precision as "propertyPrecision",
-          tipopredioid as "propertyTypeId"
+          tipo_predio_id as "propertyTypeId"
       `;
 
       const params = [
@@ -181,7 +184,7 @@ export class PostgresqlPropertyPersistence
         property.getPropertyReference(),
         property.getPropertyAltitude(),
         property.getPropertyPrecision(),
-        property.getPropertyTypeId()
+        property.getPropertyTypeId(),
       ];
 
       const result = await this.PostgreSqlService.query<PropertySQLResponse>(
@@ -196,53 +199,53 @@ export class PostgresqlPropertyPersistence
         });
       }
 
-      const response = PropertyAdapter.fromPropertySqlResponseToPropertyResponse(
-        result[0],
-      );
+      const response =
+        PropertyAdapter.fromPropertySqlResponseToPropertyResponse(result[0]);
 
       return response;
-
     } catch (error) {
       throw error;
     }
   }
 
-  async updateProperty(propertyCadastralKey: string, property: PropertyModel): Promise<PropertyResponse | null> {
+  async updateProperty(
+    propertyCadastralKey: string,
+    property: PropertyModel,
+  ): Promise<PropertyResponse | null> {
     try {
-
       const query = `
         UPDATE predio SET
-          clienteid = COALESCE($1, clienteid),
+          cliente_id = COALESCE($1, cliente_id),
           callejon = COALESCE($2, callejon),
           sector = COALESCE($3, sector),
           direccion = COALESCE($4, direccion),
-          areaterreno = COALESCE($5, areaterreno),
-          areaconstruccion = COALESCE($6, areaconstruccion),
-          valorterreno = COALESCE($7, valorterreno),
-          valorconstruccion = COALESCE($8, valorconstruccion),
-          valorcomercial = COALESCE($9, valorcomercial),
+          area_terreno = COALESCE($5, area_terreno),
+          area_construccion = COALESCE($6, area_construccion),
+          valor_terreno = COALESCE($7, valor_terreno),
+          valor_construccion = COALESCE($8, valor_construccion),
+          valor_comercial = COALESCE($9, valor_comercial),
           -- coordenadas = COALESCE($10, coordenadas),
           referencia = COALESCE($10, referencia),
           altitud = COALESCE($11, altitud),
           precision = COALESCE($12, precision),
-          tipopredioid = COALESCE($13, tipopredioid)
-        WHERE clavecatastral = $14
+          tipo_predio_id = COALESCE($13, tipo_predio_id)
+        WHERE clave_catastral = $14
         RETURNING
-          clavecatastral as "propertyCadastralKey",
-          clienteid as "propertyClientId",
+          clave_catastral as "propertyCadastralKey",
+          cliente_id as "propertyClientId",
           callejon as "properttyAlleyway",
           sector as "propertySector",
           direccion as "propertyAddress",
-          areaterreno as "propertyLandArea",
-          areaconstruccion as "propertyConstrucctionArea",
-          valorterreno as "propertyLandValue",
-          valorconstruccion as "propertyConstrucctionValue",
-          valorcomercial as "propertyComercialValue",
+          area_terreno as "propertyLandArea",
+          area_construccion as "propertyConstrucctionArea",
+          valor_terreno as "propertyLandValue",
+          valor_construccion as "propertyConstrucctionValue",
+          valor_comercial as "propertyComercialValue",
           coordenadas as "propertyCoordinates",
           referencia as "propertyReference",
           altitud as "propertyAltitude",
           precision as "propertyPrecision",
-          tipopredioid as "propertyTypeId"
+          tipo_predio_id as "propertyTypeId"
       `;
 
       const params = [
@@ -260,7 +263,7 @@ export class PostgresqlPropertyPersistence
         property.getPropertyAltitude(),
         property.getPropertyPrecision(),
         property.getPropertyTypeId(),
-        propertyCadastralKey
+        propertyCadastralKey,
       ];
 
       const result = await this.PostgreSqlService.query<PropertySQLResponse>(
@@ -275,12 +278,10 @@ export class PostgresqlPropertyPersistence
         });
       }
 
-      const response = PropertyAdapter.fromPropertySqlResponseToPropertyResponse(
-        result[0],
-      );
+      const response =
+        PropertyAdapter.fromPropertySqlResponseToPropertyResponse(result[0]);
 
       return response;
-
     } catch (error) {
       throw error;
     }
@@ -288,12 +289,10 @@ export class PostgresqlPropertyPersistence
 
   async deleteProperty(propertyCadastralKey: string): Promise<boolean> {
     try {
-
-      const query = `DELETE FROM predio WHERE clavecatastral = $1`;
+      const query = `DELETE FROM predio WHERE clave_catastral = $1`;
       const params = [propertyCadastralKey];
       const result = await this.PostgreSqlService.query(query, params);
       return result.length > 0;
-
     } catch (error) {
       throw error;
     }

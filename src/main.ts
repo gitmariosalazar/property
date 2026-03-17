@@ -11,7 +11,7 @@ async function bootstrap() {
 
   const app = await NestFactory.create(AppModule);
 
-  //await app.listen(environments.NODE_ENV === 'production' ? 3010 : 4010);
+  await app.listen(environments.NODE_ENV === 'production' ? 3010 : 4010);
   app.use(morgan('dev'));
 
   const postgresqlService: DatabaseServicePostgreSQL =
