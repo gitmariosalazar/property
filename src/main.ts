@@ -18,11 +18,10 @@ async function bootstrap() {
     new DatabaseServicePostgreSQL();
 
   logger.log(await postgresqlService.connect());
-  /*
+
   logger.log(
     `🚀🎉 The Property microservice is running on: http://localhost:${environments.NODE_ENV === 'production' ? 3010 : 4010}✅`,
   );
-  */
 
   const microservice = await NestFactory.createMicroservice(AppModule, {
     transport: Transport.KAFKA,
