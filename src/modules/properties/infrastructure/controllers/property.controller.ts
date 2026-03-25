@@ -1,15 +1,12 @@
-
-import { Controller, Get, Post, Put, Delete } from "@nestjs/common";
-import { MessagePattern, Payload } from "@nestjs/microservices";
-import { CreatePropertyRequest } from "../../domain/schemas/dto/request/create.property.request";
-import { UpdatePropertyRequest } from "../../domain/schemas/dto/request/update.property.request";
-import { PropertyService } from "../../application/services/property.service";
+import { Controller, Get, Post, Put, Delete } from '@nestjs/common';
+import { MessagePattern, Payload } from '@nestjs/microservices';
+import { CreatePropertyRequest } from '../../domain/schemas/dto/request/create.property.request';
+import { UpdatePropertyRequest } from '../../domain/schemas/dto/request/update.property.request';
+import { PropertyService } from '../../application/services/property.service';
 
 @Controller('properties')
 export class PropertyController {
-  constructor(
-    private readonly propertyService: PropertyService
-  ) { }
+  constructor(private readonly propertyService: PropertyService) {}
 
   @Post('create-property')
   @MessagePattern('properties.create-property')
@@ -19,8 +16,17 @@ export class PropertyController {
 
   @Put('update-property/:propertyCadastralKey')
   @MessagePattern('properties.update-property')
-  async updateProperty(@Payload() data: { propertyCadastralKey: string; property: UpdatePropertyRequest }) {
-    return this.propertyService.updateProperty(data.propertyCadastralKey, data.property);
+  async updateProperty(
+    @Payload()
+    data: {
+      propertyCadastralKey: string;
+      property: UpdatePropertyRequest;
+    },
+  ) {
+    return this.propertyService.updateProperty(
+      data.propertyCadastralKey,
+      data.property,
+    );
   }
 
   @Get('get-property/:propertyCadastralKey')
@@ -47,5 +53,19 @@ export class PropertyController {
   @MessagePattern('properties.verify-property-exists')
   async verifyPropertyExists(@Payload() propertyCadastralKey: string) {
     return this.propertyService.verifyPropertyExists(propertyCadastralKey);
+  }
+
+  @Get('get-properties-by-owner/:clientId')
+  @MessagePattern('properties.get-properties-by-owner')
+  async getPropertiesByOwner(
+    @Payload() data: { clientId: string; limit?: number; offset?: number },
+  ) {
+    const limit = data?.limit ?? 100;
+    const offset = data?.offset ?? 0;
+    return await this.propertyService.findPropertiesByOwner(
+      data.clientId,
+      limit,
+      offset,
+    );
   }
 }

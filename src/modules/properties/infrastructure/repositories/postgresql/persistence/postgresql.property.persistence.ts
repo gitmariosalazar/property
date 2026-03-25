@@ -297,4 +297,54 @@ export class PostgresqlPropertyPersistence
       throw error;
     }
   }
+
+  async findPropertiesByOwner(
+    clientId: string,
+    limit: number,
+    offset: number,
+  ): Promise<PropertyResponse[]> {
+    try {
+      const query = `
+        SELECT
+            p.predio_id as "propertyId",
+            p.clave_catastral as "propertyCadastralKey",
+            p.cliente_id as "propertyClientId",
+            p.callejon as "properttyAlleyway",
+            p.sector as "propertySector",
+            p.direccion as "propertyAddress",
+            p.area_terreno as "propertyLandArea",
+            p.area_construccion as "propertyConstrucctionArea",
+            p.valor_terreno as "propertyLandValue",
+            p.valor_construccion as "propertyConstrucctionValue",
+            p.valor_comercial as "propertyComercialValue",
+            p.coordenadas as "propertyCoordinates",
+            p.referencia as "propertyReference",
+            p.altitud as "propertyAltitude",
+            p.precision as "propertyPrecision",
+            p.tipo_predio_id as "propertyTypeId",
+            tp.nombre as "propertyTypeName"
+        FROM predio p
+        LEFT JOIN tipo_predio tp ON tp.tipo_predio_id = p.tipo_predio_id
+        WHERE p.cliente_id = $1
+        ORDER BY p.predio_id
+        LIMIT $2 OFFSET $3;
+      `;
+
+      const params = [clientId, limit, offset];
+      const result = await this.PostgreSqlService.query<PropertySQLResponse>(
+        query,
+        params,
+      );
+
+      const response: PropertyResponse[] = result.map((propertySqlResponse) =>
+        PropertyAdapter.fromPropertySqlResponseToPropertyResponse(
+          propertySqlResponse,
+        ),
+      );
+
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  }
 }

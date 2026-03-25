@@ -1,27 +1,29 @@
-import { Inject, Injectable } from "@nestjs/common";
-import { InterfacePropertyRepository } from "../../domain/contracts/property.interface.repository";
-import { InterfacePropertyUseCase } from "../usecases/property.use-case.interface";
-import { RpcException } from "@nestjs/microservices";
-import { PropertyResponse } from "../../domain/schemas/dto/response/property.response";
-import { statusCode } from "../../../../settings/environments/status-code";
-import { CreatePropertyRequest } from "../../domain/schemas/dto/request/create.property.request";
-import { validateFields } from "../../../../shared/validators/fields.validators";
-import { PropertyModel } from "../../domain/schemas/models/property.model";
-import { PropertyMapper } from "../mappers/property.mapper";
-import { UpdatePropertyRequest } from "../../domain/schemas/dto/request/update.property.request";
+import { Inject, Injectable } from '@nestjs/common';
+import { InterfacePropertyRepository } from '../../domain/contracts/property.interface.repository';
+import { InterfacePropertyUseCase } from '../usecases/property.use-case.interface';
+import { RpcException } from '@nestjs/microservices';
+import { PropertyResponse } from '../../domain/schemas/dto/response/property.response';
+import { statusCode } from '../../../../settings/environments/status-code';
+import { CreatePropertyRequest } from '../../domain/schemas/dto/request/create.property.request';
+import { validateFields } from '../../../../shared/validators/fields.validators';
+import { PropertyModel } from '../../domain/schemas/models/property.model';
+import { PropertyMapper } from '../mappers/property.mapper';
+import { UpdatePropertyRequest } from '../../domain/schemas/dto/request/update.property.request';
 
 @Injectable()
 export class PropertyService implements InterfacePropertyUseCase {
   constructor(
     @Inject('PropertyRepository')
     private readonly propertyRepository: InterfacePropertyRepository,
-  ) { }
+  ) {}
 
   async verifyPropertyExists(propertyCadastralKey: string): Promise<boolean> {
     return this.propertyRepository.verifyPropertyExists(propertyCadastralKey);
   }
 
-  async getPropertyById(propertyCadastralKey: string): Promise<PropertyResponse | null> {
+  async getPropertyById(
+    propertyCadastralKey: string,
+  ): Promise<PropertyResponse | null> {
     try {
       if (!propertyCadastralKey || propertyCadastralKey.trim() === '') {
         throw new RpcException({
@@ -30,7 +32,10 @@ export class PropertyService implements InterfacePropertyUseCase {
         });
       }
 
-      const verified = await this.propertyRepository.verifyPropertyExists(propertyCadastralKey);
+      const verified =
+        await this.propertyRepository.verifyPropertyExists(
+          propertyCadastralKey,
+        );
       if (!verified) {
         throw new RpcException({
           statusCode: statusCode.NOT_FOUND,
@@ -38,7 +43,8 @@ export class PropertyService implements InterfacePropertyUseCase {
         });
       }
 
-      const property = await this.propertyRepository.getPropertyById(propertyCadastralKey);
+      const property =
+        await this.propertyRepository.getPropertyById(propertyCadastralKey);
       return property;
     } catch (error) {
       throw error;
@@ -47,7 +53,6 @@ export class PropertyService implements InterfacePropertyUseCase {
 
   async deleteProperty(propertyCadastralKey: string): Promise<boolean> {
     try {
-
       if (!propertyCadastralKey || propertyCadastralKey.trim() === '') {
         throw new RpcException({
           statusCode: statusCode.BAD_REQUEST,
@@ -55,7 +60,10 @@ export class PropertyService implements InterfacePropertyUseCase {
         });
       }
 
-      const verified = await this.propertyRepository.verifyPropertyExists(propertyCadastralKey);
+      const verified =
+        await this.propertyRepository.verifyPropertyExists(
+          propertyCadastralKey,
+        );
       if (!verified) {
         throw new RpcException({
           statusCode: statusCode.NOT_FOUND,
@@ -69,9 +77,15 @@ export class PropertyService implements InterfacePropertyUseCase {
     }
   }
 
-  async findAllProperties(limit: number, offset: number): Promise<PropertyResponse[]> {
+  async findAllProperties(
+    limit: number,
+    offset: number,
+  ): Promise<PropertyResponse[]> {
     try {
-      const properties = await this.propertyRepository.findAllProperties(limit, offset);
+      const properties = await this.propertyRepository.findAllProperties(
+        limit,
+        offset,
+      );
 
       if (!properties || properties.length === 0) {
         throw new RpcException({
@@ -86,7 +100,9 @@ export class PropertyService implements InterfacePropertyUseCase {
     }
   }
 
-  async createProperty(property: CreatePropertyRequest): Promise<PropertyResponse | null> {
+  async createProperty(
+    property: CreatePropertyRequest,
+  ): Promise<PropertyResponse | null> {
     try {
       const requiredFields: string[] = [
         'propertyCadastralKey',
@@ -107,15 +123,20 @@ export class PropertyService implements InterfacePropertyUseCase {
         'propertyTypeId',
       ];
 
-      const missingFieldMessages: string[] = validateFields(property, requiredFields);
+      const missingFieldMessages: string[] = validateFields(
+        property,
+        requiredFields,
+      );
       if (missingFieldMessages.length > 0) {
         throw new RpcException({
           statusCode: statusCode.BAD_REQUEST,
-          message: missingFieldMessages
+          message: missingFieldMessages,
         });
       }
 
-      const exists = await this.propertyRepository.verifyPropertyExists(property.propertyCadastralKey);
+      const exists = await this.propertyRepository.verifyPropertyExists(
+        property.propertyCadastralKey,
+      );
       if (exists) {
         throw new RpcException({
           statusCode: statusCode.CONFLICT,
@@ -123,9 +144,11 @@ export class PropertyService implements InterfacePropertyUseCase {
         });
       }
 
-      const propertyModel: PropertyModel = PropertyMapper.fromCreateRequestToModel(property);
+      const propertyModel: PropertyModel =
+        PropertyMapper.fromCreateRequestToModel(property);
 
-      const newProperty = await this.propertyRepository.createProperty(propertyModel);
+      const newProperty =
+        await this.propertyRepository.createProperty(propertyModel);
 
       if (!newProperty) {
         throw new RpcException({
@@ -135,15 +158,16 @@ export class PropertyService implements InterfacePropertyUseCase {
       }
 
       return newProperty;
-
     } catch (error) {
       throw error;
     }
   }
 
-  async updateProperty(propertyCadastralKey: string, property: Partial<UpdatePropertyRequest>): Promise<PropertyResponse | null> {
+  async updateProperty(
+    propertyCadastralKey: string,
+    property: Partial<UpdatePropertyRequest>,
+  ): Promise<PropertyResponse | null> {
     try {
-
       if (!propertyCadastralKey || propertyCadastralKey.trim() === '') {
         throw new RpcException({
           statusCode: statusCode.BAD_REQUEST,
@@ -151,7 +175,10 @@ export class PropertyService implements InterfacePropertyUseCase {
         });
       }
 
-      const verified = await this.propertyRepository.verifyPropertyExists(propertyCadastralKey);
+      const verified =
+        await this.propertyRepository.verifyPropertyExists(
+          propertyCadastralKey,
+        );
       if (!verified) {
         throw new RpcException({
           statusCode: statusCode.NOT_FOUND,
@@ -159,7 +186,8 @@ export class PropertyService implements InterfacePropertyUseCase {
         });
       }
 
-      const existingProperty = await this.propertyRepository.getPropertyById(propertyCadastralKey);
+      const existingProperty =
+        await this.propertyRepository.getPropertyById(propertyCadastralKey);
       if (!existingProperty) {
         throw new RpcException({
           statusCode: statusCode.NOT_FOUND,
@@ -167,10 +195,15 @@ export class PropertyService implements InterfacePropertyUseCase {
         });
       }
 
-      const existingModel: PropertyModel = PropertyMapper.fromResponseToModel(existingProperty);
-      const updatedModel: PropertyModel = PropertyMapper.fromUpdateRequestToModel(property, existingModel);
+      const existingModel: PropertyModel =
+        PropertyMapper.fromResponseToModel(existingProperty);
+      const updatedModel: PropertyModel =
+        PropertyMapper.fromUpdateRequestToModel(property, existingModel);
 
-      const updatedProperty = await this.propertyRepository.updateProperty(propertyCadastralKey, updatedModel);
+      const updatedProperty = await this.propertyRepository.updateProperty(
+        propertyCadastralKey,
+        updatedModel,
+      );
 
       if (!updatedProperty) {
         throw new RpcException({
@@ -180,7 +213,38 @@ export class PropertyService implements InterfacePropertyUseCase {
       }
 
       return updatedProperty;
+    } catch (error) {
+      throw error;
+    }
+  }
 
+  async findPropertiesByOwner(
+    clientId: string,
+    limit: number,
+    offset: number,
+  ): Promise<PropertyResponse[]> {
+    try {
+      if (!clientId || clientId.trim() === '') {
+        throw new RpcException({
+          statusCode: statusCode.BAD_REQUEST,
+          message: 'Invalid clientId provided',
+        });
+      }
+
+      const properties = await this.propertyRepository.findPropertiesByOwner(
+        clientId,
+        limit,
+        offset,
+      );
+
+      if (!properties || properties.length === 0) {
+        throw new RpcException({
+          statusCode: statusCode.NOT_FOUND,
+          message: `No properties found for client with ID ${clientId}`,
+        });
+      }
+
+      return properties;
     } catch (error) {
       throw error;
     }

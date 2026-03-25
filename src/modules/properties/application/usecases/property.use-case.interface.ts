@@ -16,4 +16,9 @@ export interface InterfacePropertyUseCase {
   deleteProperty(propertyCadastralKey: string): Promise<boolean>;
   verifyPropertyExists(propertyCadastralKey: string): Promise<boolean>;
   findAllProperties(limit: number, offset: number): Promise<PropertyResponse[]>;
+  findPropertiesByOwner(
+    clientId: string,
+    limit: number,
+    offset: number,
+  ): Promise<PropertyResponse[]>;
 }
