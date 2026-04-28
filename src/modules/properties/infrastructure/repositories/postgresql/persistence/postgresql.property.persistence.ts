@@ -2,8 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { DatabaseServicePostgreSQL } from '../../../../../../shared/connections/database/postgresql/postgresql.service';
 import { InterfacePropertyRepository } from '../../../../domain/contracts/property.interface.repository';
 import { Exists } from '../../../../../../shared/interfaces/verify-exists';
-import { PropertySQLResponse } from '../../../interfaces/sql/property.sql.response';
-import { PropertyResponse } from '../../../../domain/schemas/dto/response/property.response';
+import {
+  PropertyByTypeSQLResponse,
+  PropertySQLResponse,
+} from '../../../interfaces/sql/property.sql.response';
+import {
+  PropertyByTypeResponse,
+  PropertyResponse,
+} from '../../../../domain/schemas/dto/response/property.response';
 import { PropertyAdapter } from '../adapters/property.adapter';
 import { RpcException } from '@nestjs/microservices';
 import { PropertyModel } from '../../../../domain/schemas/models/property.model';
@@ -340,6 +346,91 @@ export class PostgresqlPropertyPersistence
         PropertyAdapter.fromPropertySqlResponseToPropertyResponse(
           propertySqlResponse,
         ),
+      );
+
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async findPropertiesByType(): Promise<PropertyByTypeResponse[]> {
+    try {
+      const query = `
+        SELECT
+          p.tipo_predio_id AS property_type_id,
+          tp.nombre AS property_type,
+
+          -- Volume and Distribution
+          COUNT(p.predio_id) AS total_properties,
+          ROUND( (COUNT(p.predio_id) * 100.0 / SUM(COUNT(p.predio_id)) OVER ())::numeric, 2) AS percentage_of_total,
+
+          -- Areas
+          SUM(p.area_terreno) AS total_land_area_m2,
+          SUM(p.area_construccion) AS total_built_area_m2,
+
+          ROUND(AVG(p.area_terreno)::numeric, 2) AS avg_land_area_m2,
+          ROUND(AVG(NULLIF(p.area_construccion, 0))::numeric, 2) AS avg_built_area_m2,
+
+          -- Land Use Ratio (Floor Area Ratio)
+          ROUND(
+              AVG(p.area_construccion::numeric / NULLIF(p.area_terreno, 0)),
+              4
+          ) AS avg_floor_area_ratio,
+
+          -- Weighted Unit Prices
+          ROUND(
+              (SUM(p.valor_terreno) / NULLIF(SUM(p.area_terreno), 0))::numeric,
+              2
+          ) AS weighted_price_per_m2_land,
+
+          ROUND(
+              (SUM(p.valor_construccion) / NULLIF(SUM(p.area_construccion), 0))::numeric,
+              2
+          ) AS weighted_price_per_m2_built,
+
+          -- Commercial / Financial Value
+          ROUND(SUM(p.valor_comercial)::numeric, 2) AS total_portfolio_value,
+          ROUND(AVG(p.valor_comercial)::numeric, 2) AS avg_property_value,
+
+          -- Median Value
+          ROUND(
+              PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY p.valor_comercial)::numeric,
+              2
+          ) AS median_property_value,
+
+          -- Data Quality Alerts
+          ROUND(
+              (SUM(CASE WHEN p.coordenadas IS NULL THEN 1 ELSE 0 END) * 100.0 / COUNT(*))::numeric,
+              2
+          ) AS percentage_without_coordinates,
+
+          SUM(CASE WHEN p.area_construccion > 0
+                  AND COALESCE(p.valor_construccion, 0) = 0
+                  THEN 1 ELSE 0 END) AS alerts_missing_construction_value,
+
+          SUM(CASE WHEN p.area_construccion > p.area_terreno THEN 1 ELSE 0 END)
+              AS properties_with_built_area_exceeding_land
+
+        FROM predio p
+        INNER JOIN public.tipo_predio tp
+            ON tp.tipo_predio_id = p.tipo_predio_id
+
+        WHERE p.area_terreno > 0.1
+          AND p.valor_comercial IS NOT NULL
+
+        GROUP BY p.tipo_predio_id, tp.nombre
+        ORDER BY total_portfolio_value DESC;
+      `;
+
+      const result: PropertyByTypeSQLResponse[] =
+        await this.PostgreSqlService.query<PropertyByTypeSQLResponse>(query);
+
+      const response: PropertyByTypeResponse[] = result.map(
+        (propertyByTypeSqlResponse) =>
+          PropertyAdapter.fromPropertyByTypeSqlResponseToPropertyByTypeResponse(
+            propertyByTypeSqlResponse,
+          ),
       );
 
       return response;

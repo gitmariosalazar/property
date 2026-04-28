@@ -1,6 +1,9 @@
 import { CreatePropertyRequest } from '../../domain/schemas/dto/request/create.property.request';
 import { UpdatePropertyRequest } from '../../domain/schemas/dto/request/update.property.request';
-import { PropertyResponse } from '../../domain/schemas/dto/response/property.response';
+import {
+  PropertyByTypeResponse,
+  PropertyResponse,
+} from '../../domain/schemas/dto/response/property.response';
 
 export interface InterfacePropertyUseCase {
   createProperty(
@@ -21,4 +24,6 @@ export interface InterfacePropertyUseCase {
     limit: number,
     offset: number,
   ): Promise<PropertyResponse[]>;
+
+  findPropertiesByType(): Promise<PropertyByTypeResponse[]>;
 }

@@ -68,4 +68,10 @@ export class PropertyController {
       offset,
     );
   }
+
+  @Get('get-properties-by-type')
+  @MessagePattern('properties.get-properties-by-type')
+  async getPropertiesByType() {
+    return await this.propertyService.findPropertiesByType();
+  }
 }

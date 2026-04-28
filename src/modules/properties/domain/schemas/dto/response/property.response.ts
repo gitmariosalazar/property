@@ -1,4 +1,4 @@
-import { UUID } from "crypto";
+import { UUID } from 'crypto';
 
 export interface PropertyResponse {
   propertyId: UUID;
@@ -18,4 +18,36 @@ export interface PropertyResponse {
   propertyPrecision: number;
   propertyTypeId: number;
   propertyTypeName: string;
+}
+
+export interface PropertyByTypeResponse {
+  tipoPredioId: number;
+  propertyType: string;
+
+  // Volume and Distribution
+  totalProperties: number;
+  percentageOfTotal: number;
+
+  // Areas
+  totalLandAreaM2: number;
+  totalBuiltAreaM2: number;
+  avgLandAreaM2: number;
+  avgBuiltAreaM2: number;
+
+  // Land Use Ratio (Floor Area Ratio)
+  avgFloorAreaRatio: number;
+
+  // Weighted Unit Prices (Most Important)
+  weightedPricePerM2Land: number;
+  weightedPricePerM2Built: number;
+
+  // Commercial / Financial Value
+  totalPortfolioValue: number;
+  avgPropertyValue: number;
+  medianPropertyValue: number;
+
+  // Data Quality Alerts
+  percentageWithoutCoordinates: number;
+  alertsMissingConstructionValue: number;
+  propertiesWithBuiltAreaExceedingLand: number;
 }

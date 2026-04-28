@@ -1,4 +1,7 @@
-import { PropertyResponse } from '../schemas/dto/response/property.response';
+import {
+  PropertyByTypeResponse,
+  PropertyResponse,
+} from '../schemas/dto/response/property.response';
 import { PropertyModel } from '../schemas/models/property.model';
 
 export interface InterfacePropertyRepository {
@@ -18,4 +21,6 @@ export interface InterfacePropertyRepository {
     limit: number,
     offset: number,
   ): Promise<PropertyResponse[]>;
+
+  findPropertiesByType(): Promise<PropertyByTypeResponse[]>;
 }

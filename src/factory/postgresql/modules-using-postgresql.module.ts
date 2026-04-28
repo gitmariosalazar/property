@@ -1,11 +1,10 @@
-import { Module } from "@nestjs/common";
-import { PostgresPropertyModule } from "../../modules/properties/infrastructure/modules/postgresql/postgresql.property.controller";
-
+import { Module } from '@nestjs/common';
+import { PostgresPropertyModule } from '../../modules/properties/infrastructure/modules/postgresql/postgresql.property.module';
 
 @Module({
   imports: [PostgresPropertyModule],
   controllers: [],
   providers: [],
-  exports: []
+  exports: [],
 })
-export class AppPropertyModulesUsingPostgreSQL { }
+export class AppPropertyModulesUsingPostgreSQL {}

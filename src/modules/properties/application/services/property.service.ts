@@ -2,7 +2,10 @@ import { Inject, Injectable } from '@nestjs/common';
 import { InterfacePropertyRepository } from '../../domain/contracts/property.interface.repository';
 import { InterfacePropertyUseCase } from '../usecases/property.use-case.interface';
 import { RpcException } from '@nestjs/microservices';
-import { PropertyResponse } from '../../domain/schemas/dto/response/property.response';
+import {
+  PropertyByTypeResponse,
+  PropertyResponse,
+} from '../../domain/schemas/dto/response/property.response';
 import { statusCode } from '../../../../settings/environments/status-code';
 import { CreatePropertyRequest } from '../../domain/schemas/dto/request/create.property.request';
 import { validateFields } from '../../../../shared/validators/fields.validators';
@@ -245,6 +248,24 @@ export class PropertyService implements InterfacePropertyUseCase {
       }
 
       return properties;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async findPropertiesByType(): Promise<PropertyByTypeResponse[]> {
+    try {
+      const propertiesByType =
+        await this.propertyRepository.findPropertiesByType();
+
+      if (!propertiesByType || propertiesByType.length === 0) {
+        throw new RpcException({
+          statusCode: statusCode.NOT_FOUND,
+          message: 'No property types found',
+        });
+      }
+
+      return propertiesByType;
     } catch (error) {
       throw error;
     }
