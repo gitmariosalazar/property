@@ -1,11 +1,11 @@
 import {
   PropertyByTypeResponse,
   PropertyResponse,
-} from '../../../../domain/schemas/dto/response/property.response';
+} from '../../domain/schemas/dto/response/property.response';
 import {
   PropertyByTypeSQLResponse,
   PropertySQLResponse,
-} from '../../../interfaces/sql/property.sql.response';
+} from '../interfaces/sql/property.sql.response';
 
 export class PropertyAdapter {
   static fromPropertySqlResponseToPropertyResponse(

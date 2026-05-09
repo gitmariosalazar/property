@@ -3,11 +3,12 @@ import { ClientsModule, Transport } from "@nestjs/microservices";
 import { environments } from "../../../../../settings/environments/environments";
 import { PropertyController } from "../../controllers/property.controller";
 import { PropertyService } from "../../../application/services/property.service";
-import { DatabaseServicePostgreSQL } from "../../../../../shared/connections/database/postgresql/postgresql.service";
 import { PostgresqlPropertyPersistence } from "../../repositories/postgresql/persistence/postgresql.property.persistence";
+import { DatabasePersistenceModule } from "../../../../../shared/connections/database/database-persistence.module";
 
 @Module({
   imports: [
+    DatabasePersistenceModule,
     ClientsModule.register([
       {
         name: environments.PROPERTY_KAFKA_CLIENT,
@@ -29,7 +30,7 @@ import { PostgresqlPropertyPersistence } from "../../repositories/postgresql/per
     PropertyController
   ],
   providers: [
-    PropertyService, DatabaseServicePostgreSQL,
+    PropertyService,
     {
       provide: 'PropertyRepository',
       useClass: PostgresqlPropertyPersistence
