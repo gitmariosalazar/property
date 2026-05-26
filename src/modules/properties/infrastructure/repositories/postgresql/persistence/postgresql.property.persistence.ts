@@ -15,9 +15,7 @@ import { PropertyModel } from '../../../../domain/schemas/models/property.model'
 import { DatabaseAbstract } from '../../../../../../shared/connections/database/abstract/abstract.database';
 
 @Injectable()
-export class PostgresqlPropertyPersistence
-  implements InterfacePropertyRepository
-{
+export class PostgresqlPropertyPersistence implements InterfacePropertyRepository {
   constructor(private readonly databaseService: DatabaseAbstract) {}
 
   async verifyPropertyExists(propertyCadastralKey: string): Promise<boolean> {
@@ -221,21 +219,21 @@ export class PostgresqlPropertyPersistence
     try {
       const query = `
         UPDATE predio SET
-          cliente_id = COALESCE($1, cliente_id),
-          callejon = COALESCE($2, callejon),
-          sector = COALESCE($3, sector),
-          direccion = COALESCE($4, direccion),
-          area_terreno = COALESCE($5, area_terreno),
-          area_construccion = COALESCE($6, area_construccion),
-          valor_terreno = COALESCE($7, valor_terreno),
-          valor_construccion = COALESCE($8, valor_construccion),
-          valor_comercial = COALESCE($9, valor_comercial),
-          -- coordenadas = COALESCE($10, coordenadas),
-          referencia = COALESCE($10, referencia),
-          altitud = COALESCE($11, altitud),
-          precision = COALESCE($12, precision),
-          tipo_predio_id = COALESCE($13, tipo_predio_id)
-        WHERE clave_catastral = $14
+          --cliente_id = COALESCE($1, cliente_id),
+          callejon = COALESCE($1, callejon),
+          sector = COALESCE($2, sector),
+          direccion = COALESCE($3, direccion),
+          area_terreno = COALESCE($4, area_terreno),
+          area_construccion = COALESCE($5, area_construccion),
+          valor_terreno = COALESCE($6, valor_terreno),
+          valor_construccion = COALESCE($7, valor_construccion),
+          valor_comercial = COALESCE($8, valor_comercial),
+          -- coordenadas = COALESCE($9, coordenadas),
+          referencia = COALESCE($9, referencia),
+          altitud = COALESCE($10, altitud),
+          precision = COALESCE($11, precision),
+          tipo_predio_id = COALESCE($12, tipo_predio_id)
+        WHERE clave_catastral = $13
         RETURNING
           clave_catastral as "propertyCadastralKey",
           cliente_id as "propertyClientId",
@@ -255,7 +253,7 @@ export class PostgresqlPropertyPersistence
       `;
 
       const params = [
-        property.getPropertyClientId(),
+        //property.getPropertyClientId(),
         property.getPropertyAlleyway(),
         property.getPropertySector(),
         property.getPropertyAddress(),
